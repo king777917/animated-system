@@ -1,0 +1,20 @@
+{
+  "Подсолнух декоративный": {
+    "price_per_unit": 150,
+    "pack_size": 5,
+    "pack_price": 750,
+    "unit": "шт"
+  },
+  "Пион": {
+    "price_per_unit": 130,
+    "pack_size": 20,
+    "pack_price": 2600,
+    "unit": "шт"
+  },
+  "Эустома": {
+    "price_per_unit": 180,
+    "pack_size": 10,
+    "pack_price": 1800,
+    "unit": "шт"
+  }
+}
