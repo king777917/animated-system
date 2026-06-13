@@ -1,6 +1,8 @@
 import json
 import logging
 import re
+import hashlib
+import aiohttp
 from aiogram import Bot, Dispatcher, F
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters import Command
@@ -19,6 +21,11 @@ NOTIFY_IDS = [2083351251]
 
 # Username менеджера для кнопки связи (без @)
 MANAGER_USERNAME = "flo_garden_23"
+
+# === Т-Банк эквайринг (демо-ключи, заменить на рабочие позже) ===
+TBANK_TERMINAL_KEY = os.getenv("TBANK_TERMINAL_KEY", "1781337367639DEMO")
+TBANK_PASSWORD = os.getenv("TBANK_PASSWORD", "SzmTPMLqsb&m50AL")
+TBANK_INIT_URL = "https://securepay.tinkoff.ru/v2/Init"
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
@@ -137,6 +144,41 @@ def cart_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
 
+def make_token(params: dict) -> str:
+    """Формирует токен подписи запроса для Т-Банк API (SHA-256)."""
+    data = dict(params)
+    data["Password"] = TBANK_PASSWORD
+    # Только простые поля (без вложенных объектов/массивов)
+    data = {k: v for k, v in data.items() if not isinstance(v, (dict, list))}
+    sorted_values = "".join(str(data[k]) for k in sorted(data.keys()))
+    return hashlib.sha256(sorted_values.encode("utf-8")).hexdigest()
+
+
+async def create_payment_link(order_id: str, amount_rub: int, description: str):
+    """Вызывает Т-Банк Init и возвращает ссылку на оплату или None при ошибке."""
+    amount_kopecks = amount_rub * 100
+    params = {
+        "TerminalKey": TBANK_TERMINAL_KEY,
+        "Amount": amount_kopecks,
+        "OrderId": order_id,
+        "Description": description[:250],
+    }
+    params["Token"] = make_token(params)
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(TBANK_INIT_URL, json=params, timeout=10) as resp:
+                data = await resp.json()
+                if data.get("Success"):
+                    return data.get("PaymentURL")
+                else:
+                    logging.error(f"Т-Банк Init ошибка: {data}")
+                    return None
+    except Exception as e:
+        logging.error(f"Ошибка запроса к Т-Банку: {e}")
+        return None
+
+
 @dp.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
@@ -249,10 +291,22 @@ async def checkout(callback: CallbackQuery):
     username = f"@{user.username}" if user.username else "(нет username)"
     full_name = user.full_name
 
+    order_id = f"{user.id}-{int(asyncio.get_event_loop().time() * 1000)}"
+    pay_url = await create_payment_link(
+        order_id=order_id,
+        amount_rub=total,
+        description=f"Заказ цветов от {full_name}",
+    )
+
+    if pay_url:
+        payment_block = f"💳 Оплатить онлайн: {pay_url}\n\n"
+    else:
+        payment_block = "💳 Оплата: при получении / уточнение у продавца.\n\n"
+
     final_text = (
         f"{text}\n\n"
         f"📦 Заказ оформлен!\n"
-        f"💳 Оплата: при получении / уточнение у продавца.\n\n"
+        f"{payment_block}"
         f"По вопросам — нажмите «Связаться с менеджером» в меню.\n"
         f"Мы свяжемся с вами для подтверждения деталей доставки и оплаты.\n\n"
         f"Благодарим за заказ🙌🏻 В ближайшее время менеджер свяжется с вами для уточнения деталей 👌🏻"
@@ -265,7 +319,8 @@ async def checkout(callback: CallbackQuery):
         f"🆕 Новый заказ!\n\n"
         f"От: {full_name} ({username})\n"
         f"Telegram ID: {user.id}\n\n"
-        f"{text}"
+        f"{text}\n\n"
+        f"{payment_block}"
     )
     for chat_id in NOTIFY_IDS:
         try:
