@@ -1,20 +1,128 @@
 {
-  "Подсолнух декоративный": {
-    "price_per_unit": 150,
-    "pack_size": 5,
-    "pack_price": 750,
-    "unit": "шт"
-  },
-  "Пион": {
+  "🌹 Пион": {
     "price_per_unit": 130,
     "pack_size": 20,
     "pack_price": 2600,
     "unit": "шт"
   },
-  "Эустома": {
+  "🌹 Пион Сара (крупный)": {
+    "price_per_unit": 160,
+    "pack_size": 20,
+    "pack_price": 3200,
+    "unit": "шт"
+  },
+  "🌻 Подсолнух": {
+    "price_per_unit": 150,
+    "pack_size": 5,
+    "pack_price": 750,
+    "unit": "шт"
+  },
+  "💐 Эустома 90см": {
     "price_per_unit": 180,
     "pack_size": 10,
     "pack_price": 1800,
     "unit": "шт"
+  },
+  "💐 Эустома 60см": {
+    "price_per_unit": 150,
+    "pack_size": 10,
+    "pack_price": 1500,
+    "unit": "шт"
+  },
+  "💐 Эустома 40см": {
+    "price_per_unit": 120,
+    "pack_size": 10,
+    "pack_price": 1200,
+    "unit": "шт"
+  },
+  "🌺 Альстромерия": {
+    "price_per_unit": 60,
+    "pack_size": 10,
+    "pack_price": 600,
+    "unit": "шт"
+  },
+  "🌼 Ромашка": {
+    "price_per_unit": 55,
+    "pack_size": 20,
+    "pack_price": 1100,
+    "unit": "шт"
+  },
+  "🌷 Гладиолус": {
+    "price_per_unit": 150,
+    "pack_size": 10,
+    "pack_price": 1500,
+    "unit": "шт"
+  },
+  "🌻 Георгина": {
+    "price_per_unit": 150,
+    "pack_size": 10,
+    "pack_price": 1500,
+    "unit": "шт"
+  },
+  "🌸 Кала": {
+    "price_per_unit": 170,
+    "pack_size": 10,
+    "pack_price": 1700,
+    "unit": "шт"
+  },
+  "🌷 Матиола": {
+    "price_per_unit": 90,
+    "pack_size": 10,
+    "pack_price": 900,
+    "unit": "шт"
+  },
+  "🌼 Зев (вариант 1)": {
+    "price_per_unit": 90,
+    "pack_size": 10,
+    "pack_price": 900,
+    "unit": "шт"
+  },
+  "🌼 Зев (вариант 2)": {
+    "price_per_unit": 60,
+    "pack_size": 10,
+    "pack_price": 600,
+    "unit": "шт"
+  },
+  "🌿 Статица": {
+    "price_per_unit": 0,
+    "pack_size": 1,
+    "pack_price": 800,
+    "unit": "упак"
+  },
+  "🌿 Матрикария": {
+    "price_per_unit": 0,
+    "pack_size": 1,
+    "pack_price": 500,
+    "unit": "упак"
+  },
+  "🌼 Гербера микс": {
+    "price_per_unit": 80,
+    "pack_size": 60,
+    "pack_price": 4800,
+    "unit": "шт"
+  },
+  "🌼 Гербера моно": {
+    "price_per_unit": 100,
+    "pack_size": 60,
+    "pack_price": 6000,
+    "unit": "шт"
+  },
+  "🪴 Гортензия (горшок)": {
+    "price_per_unit": 1800,
+    "pack_size": 1,
+    "pack_price": 1800,
+    "unit": "горшок"
+  },
+  "🌿 Малюцелла (вариант 1)": {
+    "price_per_unit": 0,
+    "pack_size": 1,
+    "pack_price": 900,
+    "unit": "упак"
+  },
+  "🌿 Малюцелла (вариант 2)": {
+    "price_per_unit": 0,
+    "pack_size": 1,
+    "pack_price": 700,
+    "unit": "упак"
   }
 }
