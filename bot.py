@@ -84,6 +84,7 @@ def get_cart(user_id):
 
 def flowers_keyboard():
     kb = []
+    kb.append([InlineKeyboardButton(text="📋 Ассортимент с фотографиями", url="https://telegra.ph/AKTUALNYJ-ASSORTIMENT-06-13")])
     for name in PRICES.keys():
         kb.append([InlineKeyboardButton(text=name, callback_data=f"flower:{name}")])
     kb.append([InlineKeyboardButton(text="🧺 Корзина / Итого", callback_data="cart")])
@@ -253,7 +254,8 @@ async def checkout(callback: CallbackQuery):
         f"📦 Заказ оформлен!\n"
         f"💳 Оплата: при получении / уточнение у продавца.\n\n"
         f"По вопросам — нажмите «Связаться с менеджером» в меню.\n"
-        f"Мы свяжемся с вами для подтверждения деталей доставки и оплаты."
+        f"Мы свяжемся с вами для подтверждения деталей доставки и оплаты.\n\n"
+        f"Благодарим за заказ🙌🏻 В ближайшее время менеджер свяжется с вами для уточнения деталей 👌🏻"
     )
     await callback.message.edit_text(final_text)
     await callback.answer()
