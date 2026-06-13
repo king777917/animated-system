@@ -22,9 +22,9 @@ NOTIFY_IDS = [2083351251]
 # Username менеджера для кнопки связи (без @)
 MANAGER_USERNAME = "flo_garden_23"
 
-# === Т-Банк эквайринг (демо-ключи, заменить на рабочие позже) ===
-TBANK_TERMINAL_KEY = os.getenv("TBANK_TERMINAL_KEY", "1781337367639DEMO")
-TBANK_PASSWORD = os.getenv("TBANK_PASSWORD", "SzmTPMLqsb&m50AL")
+# === Т-Банк эквайринг (рабочие ключи) ===
+TBANK_TERMINAL_KEY = os.getenv("TBANK_TERMINAL_KEY", "1781337367663")
+TBANK_PASSWORD = os.getenv("TBANK_PASSWORD", "B&WV7WLf*2T6YKhB")
 TBANK_INIT_URL = "https://securepay.tinkoff.ru/v2/Init"
 
 bot = Bot(token=BOT_TOKEN)
