@@ -17,10 +17,10 @@ logging.basicConfig(level=logging.INFO)
 BOT_TOKEN = os.getenv("BOT_TOKEN", "ВСТАВЬ_СЮДА_СВОЙ_ТОКЕН")
 
 # Куда слать уведомления о новых заказах (Telegram ID через запятую, если несколько)
-NOTIFY_IDS = [2083351251]
+NOTIFY_IDS = [7414870667]
 
 # Username менеджера для кнопки связи (без @)
-MANAGER_USERNAME = "flo_garden_23"
+MANAGER_USERNAME = "f1o_south"
 
 # === Т-Банк эквайринг (рабочие ключи) ===
 TBANK_TERMINAL_KEY = os.getenv("TBANK_TERMINAL_KEY", "1781337367663")
