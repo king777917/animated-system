@@ -1,8 +1,11 @@
 import json
 import logging
+import re
 from aiogram import Bot, Dispatcher, F
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 import asyncio
 import os
@@ -28,6 +31,46 @@ def load_prices():
 
 
 PRICES = load_prices()
+
+
+class OrderForm(StatesGroup):
+    waiting_quantity = State()
+
+
+# Числительные текстом (1-99, наиболее частые для опта)
+WORD_NUMBERS = {
+    "один": 1, "одна": 1, "два": 2, "две": 2, "три": 3, "четыре": 4, "пять": 5,
+    "шесть": 6, "семь": 7, "восемь": 8, "девять": 9, "десять": 10,
+    "одиннадцать": 11, "двенадцать": 12, "тринадцать": 13, "четырнадцать": 14,
+    "пятнадцать": 15, "шестнадцать": 16, "семнадцать": 17, "восемнадцать": 18,
+    "девятнадцать": 19, "двадцать": 20, "тридцать": 30, "сорок": 40,
+    "пятьдесят": 50, "шестьдесят": 60, "семьдесят": 70, "восемьдесят": 80,
+    "девяносто": 90, "сто": 100,
+}
+
+
+def parse_quantity(text):
+    """Парсит количество упаковок из текста: цифры или числительные текстом."""
+    text = text.strip().lower()
+
+    # Просто цифра
+    if text.isdigit():
+        n = int(text)
+        return n if n > 0 else None
+
+    # Составные числительные типа "двадцать пять" или "сорок"
+    words = re.findall(r"[а-яё]+", text)
+    if not words:
+        return None
+
+    total = 0
+    found = False
+    for w in words:
+        if w in WORD_NUMBERS:
+            total += WORD_NUMBERS[w]
+            found = True
+
+    return total if found and total > 0 else None
 
 # === Хранилище корзин в памяти: {user_id: {flower: packs}} ===
 carts = {}
@@ -57,6 +100,7 @@ def quantity_keyboard(flower):
             InlineKeyboardButton(text="+2 упак", callback_data=f"add:{flower}:2"),
             InlineKeyboardButton(text="+5 упак", callback_data=f"add:{flower}:5"),
         ],
+        [InlineKeyboardButton(text="✏️ Указать своё количество", callback_data=f"custom:{flower}")],
         [InlineKeyboardButton(text="⬅️ Назад к списку", callback_data="back")],
     ]
     return InlineKeyboardMarkup(inline_keyboard=kb)
@@ -93,7 +137,8 @@ def cart_keyboard():
 
 
 @dp.message(Command("start"))
-async def cmd_start(message: Message):
+async def cmd_start(message: Message, state: FSMContext):
+    await state.clear()
     text = (
         "🌻 Добро пожаловать к поставщикам и фермерам с юга!\n\n"
         "Выращиваем и поставляем с любовью и качеством.\n\n"
@@ -105,7 +150,8 @@ async def cmd_start(message: Message):
 
 
 @dp.callback_query(F.data == "back")
-async def back_to_list(callback: CallbackQuery):
+async def back_to_list(callback: CallbackQuery, state: FSMContext):
+    await state.clear()
     await callback.message.edit_text(
         "🌿 Выберите цветок из списка:", reply_markup=flowers_keyboard()
     )
@@ -140,6 +186,41 @@ async def add_to_cart(callback: CallbackQuery):
     cart = get_cart(callback.from_user.id)
     cart[flower] = cart.get(flower, 0) + packs
     await callback.answer(f"Добавлено: {flower} +{packs} упак")
+
+
+@dp.callback_query(F.data.startswith("custom:"))
+async def custom_quantity_request(callback: CallbackQuery, state: FSMContext):
+    flower = callback.data.split(":", 1)[1]
+    await state.update_data(flower=flower)
+    await state.set_state(OrderForm.waiting_quantity)
+    await callback.message.edit_text(
+        f"{flower}\n\n"
+        f"Напишите количество упаковок (например: 7 или семь):"
+    )
+    await callback.answer()
+
+
+@dp.message(OrderForm.waiting_quantity)
+async def custom_quantity_received(message: Message, state: FSMContext):
+    data = await state.get_data()
+    flower = data.get("flower")
+
+    qty = parse_quantity(message.text)
+    if qty is None:
+        await message.answer(
+            "Не получилось распознать количество 🤔\n"
+            "Напишите число (например: 7) или словом (например: семь)."
+        )
+        return
+
+    cart = get_cart(message.from_user.id)
+    cart[flower] = cart.get(flower, 0) + qty
+    await state.clear()
+
+    await message.answer(
+        f"✅ Добавлено: {flower} +{qty} упак",
+        reply_markup=flowers_keyboard()
+    )
 
 
 @dp.callback_query(F.data == "cart")
